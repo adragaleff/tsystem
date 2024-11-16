@@ -1,0 +1,38 @@
+services:
+  db:
+    image: mysql:8.0
+    environment:
+      MYSQL_ROOT_PASSWORD: 333862A153ru161
+      MYSQL_DATABASE: tsystem
+      MYSQL_USER: tsystem
+      MYSQL_PASSWORD: A153ru161
+    volumes:
+      - db_data:/var/lib/mysql
+    networks:
+      - tsystem_project
+
+  web:
+    image: adragaleff/tsystem-web:latest
+    command: >
+        bash -c "sleep 10 && python manage.py migrate && python manage.py runserver 0.0.0.0:8000"
+
+    volumes:
+      - .:/app
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+    environment:
+      - DB_HOST=db
+      - DB_PORT=3306
+      - DB_NAME=tsystem
+      - DB_USER=tsystem
+      - DB_PASSWORD=A153ru161
+    networks:
+      - tsystem_project
+
+networks:
+  tsystem_project:
+
+volumes:
+  db_data:
