@@ -7,8 +7,10 @@ from .forms import *
 from django.urls import reverse_lazy
 from django.views.generic import CreateView
 from .utils import *
+from .decorators import *
 
 # Create your views here.
+@staff_required
 def home_view(request):
 
     tickets = Ticket.objects.all()
@@ -19,6 +21,7 @@ def home_view(request):
 
     return render(request, 'index.html', context)
 
+@staff_required
 def get_tickets(request):
     tickets = Ticket.objects.exclude(status='Закрыт').order_by('-date_create')\
         .select_related('author')  # Используем select_related для извлечения данных о пользователе в одном запросе
