@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>TSystem - APTSystem</title>
     <link rel="stylesheet" href="{% static 'css/index.css' %}">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 </head>
 <body>
     <header class="header">
@@ -29,64 +30,95 @@
     <main class="ticket-section">
         <h2 class="section-title">Тикеты</h2>
         <div class="ticket-container" id="ticket-container">
-            <!-- Здесь будут появляться тикеты -->
+            <!-- Здесь будут отображаться тикеты -->
+        </div>
+        
+        <div class="pagination">
+            <button id="prev-page" class="pagination-button" disabled>Предыдущая</button>
+            <button id="next-page" class="pagination-button" disabled>Следующая</button>
         </div>
     </main>
-
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
-        function loadTickets() {
-    $.ajax({
-        url: '{% url "get_tickets" %}',
-        method: 'GET',
-        success: function(data) {
-            console.log(data);  // Логируем данные для отладки
-            $('#ticket-container').empty();  // Очищаем контейнер
+        var currentPage = 1;  // Стартовая страница
 
-            if (data.tickets.length === 0) {
-                $('#ticket-container').html('<p>Нет доступных тикетов</p>');
-            } else {
-                data.tickets.forEach(function(ticket) {
-                    // Определение класса для статуса тикета
-                    var statusClass = '';
-                    if (ticket.status === 'Ожидает') statusClass = 'status-waiting';
-                    if (ticket.status === 'В процессе') statusClass = 'status-in-progress';
-                    if (ticket.status === 'Закрыт') statusClass = 'status-closed';
+        // Функция для загрузки тикетов с пагинацией
+        function loadTickets(page) {
+            $.ajax({
+                url: '{% url "get_tickets" %}?page=' + page,  // Параметр страницы в URL
+                method: 'GET',
+                success: function(data) {
+                    console.log(data);  // Логируем данные для отладки
 
-                    // Формирование HTML для тикета
-                    var ticketHtml = `
-                        <div class="ticket" id="ticket-${ticket.pk}">
-                            <div class="ticket-header">
-                                <h3 class="ticket-title">Тикет #${ticket.pk}</h3>
-                                <span class="ticket-status-label ${statusClass}">${ticket.status}</span>
-                            </div>
-                            <p class="ticket-description">Описание проблемы: ${ticket.description}</p>
-                            <p class="ticket-date">Дата создания: ${ticket.date_create}</p>
-                            <p class="ticket-author">Автор: <a href="/admin/auth/user/${ticket.author.id}/change">${ticket.author.first_name} ${ticket.author.last_name}</a></p>
-                    `;
+                    $('#ticket-container').empty();  // Очищаем контейнер перед добавлением новых данных
 
-                    // Добавляем информацию о исполнителе, если он есть
-                    if (ticket.executor.first_name && ticket.executor.last_name) {
-                        ticketHtml += `<p class="ticket-assignee">Исполнитель: ${ticket.executor.first_name} ${ticket.executor.last_name}</p>`;
+                    if (data.tickets.length === 0) {
+                        $('#ticket-container').html('<p>Нет доступных тикетов</p>');
+                    } else {
+                        // Добавление тикетов в контейнер
+                        data.tickets.forEach(function(ticket) {
+                            var statusClass = '';
+                            if (ticket.status === 'Ожидает') statusClass = 'status-waiting';
+                            if (ticket.status === 'В процессе') statusClass = 'status-in-progress';
+                            if (ticket.status === 'Закрыт') statusClass = 'status-closed';
+
+                            var ticketHtml = `
+                                <div class="ticket" id="ticket-${ticket.pk}">
+                                    <div class="ticket-header">
+                                        <h3 class="ticket-title">Тикет #${ticket.pk}</h3>
+                                        <span class="ticket-status-label ${statusClass}">${ticket.status}</span>
+                                    </div>
+                                    <p class="ticket-description">Описание проблемы: ${ticket.description}</p>
+                                    <p class="ticket-date">Дата создания: ${ticket.date_create}</p>
+                                    <p class="ticket-author">Автор: <a href="/admin/auth/user/${ticket.author.id}/change">${ticket.author.first_name} ${ticket.author.last_name}</a></p>
+                            `;
+                            
+                            if (ticket.executor.first_name && ticket.executor.last_name) {
+                                ticketHtml += `<p class="ticket-assignee">Исполнитель: ${ticket.executor.first_name} ${ticket.executor.last_name}</p>`;
+                            }
+
+                            ticketHtml += `</div>`;  // Закрываем div тикета
+
+                            $('#ticket-container').append(ticketHtml);  // Добавляем тикет в контейнер
+                        });
                     }
 
-                    // Закрываем тег див тикета
-                    ticketHtml += `</div>`;
+                    // Обработка кнопок пагинации
+                    if (data.has_previous) {
+                        $('#prev-page').prop('disabled', false);  // Включаем кнопку "Предыдущая"
+                    } else {
+                        $('#prev-page').prop('disabled', true);  // Отключаем кнопку "Предыдущая"
+                    }
 
-                    // Добавляем HTML в контейнер
-                    $('#ticket-container').append(ticketHtml);
-                });
-            }
-        },
-        error: function(xhr, status, error) {
-            console.error("Ошибка загрузки тикетов:", error);
+                    if (data.has_next) {
+                        $('#next-page').prop('disabled', false);  // Включаем кнопку "Следующая"
+                    } else {
+                        $('#next-page').prop('disabled', true);  // Отключаем кнопку "Следующая"
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.error("Ошибка загрузки тикетов:", error);
+                }
+            });
         }
-    });
-    }
 
+        // Обработчик для кнопки "Следующая"
+        $('#next-page').click(function() {
+            currentPage++;
+            loadTickets(currentPage);
+        });
+
+        // Обработчик для кнопки "Предыдущая"
+        $('#prev-page').click(function() {
+            currentPage--;
+            loadTickets(currentPage);
+        });
+
+        // Загружаем тикеты при загрузке страницы
         $(document).ready(function() {
-            loadTickets();  // Загружаем тикеты при загрузке страницы
-            setInterval(loadTickets, 10000);  // Обновляем каждые 10 секунд
+            loadTickets(currentPage);
+            setInterval(function() {
+                loadTickets(currentPage);  // Загружаем тикеты на текущей странице каждую секунду
+            }, 10000);
         });
     </script>
 </body>

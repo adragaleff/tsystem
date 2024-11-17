@@ -8,6 +8,7 @@ from django.urls import reverse_lazy
 from django.views.generic import CreateView
 from .utils import *
 from .decorators import *
+from django.core.paginator import Paginator
 from django.contrib.auth.decorators import login_required
 
 # Create your views here.
@@ -29,8 +30,12 @@ def get_tickets(request):
     tickets = Ticket.objects.exclude(status='Закрыт').order_by('-date_create')\
         .select_related('author')  # Используем select_related для извлечения данных о пользователе в одном запросе
 
+    paginator = Paginator(tickets, 10)  # 10 тикетов на страницу
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
     ticket_list = []
-    for ticket in tickets:
+    for ticket in page_obj:
         ticket_data = {
             'pk': ticket.pk,
             'status': ticket.status,
@@ -49,7 +54,8 @@ def get_tickets(request):
         }
         ticket_list.append(ticket_data)
 
-    return JsonResponse({'tickets': ticket_list})
+    return JsonResponse({'tickets': ticket_list, 'has_next': page_obj.has_next(), 'has_previous': page_obj.has_previous()})
+
 
 class LoginUser(DataMixin, LoginView):
     form_class = AuthForm
@@ -76,3 +82,5 @@ class RegisterUser(DataMixin, CreateView):
         context = super().get_context_data(**kwargs)
         c_def = self.get_user_context(title="Авторизация")
         return dict(list(context.items()) + list(c_def.items()))
+    
+
