@@ -140,9 +140,17 @@ LOGOUT_REDIRECT_URL = '/logout'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+CSRF_COOKIE_DOMAIN = '.aptsystem.ru'
 SECURE_SSL_REDIRECT = True  # Перенаправлять все HTTP-запросы на HTTPS
 SECURE_HTTP_ONLY = True  # Отключаем доступ к куки через JavaScript
 CSRF_COOKIE_SECURE = True  # CSRF-токены будут передаваться только через HTTPS
 SESSION_COOKIE_SECURE = True  # Сессии будут передаваться только через HTTPS
 SECURE_BROWSER_XSS_FILTER = True  # Защита от XSS
 SECURE_CONTENT_TYPE_NOSNIFF = True  # Запрещаем браузерам интерпретировать неявно указанный контент
+
+USE_X_FORWARDED_HOST = True
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+
+CSRF_TRUSTED_ORIGINS = [
+    'https://ticket.aptsystem.ru',
+]
