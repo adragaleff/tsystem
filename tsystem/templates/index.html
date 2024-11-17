@@ -8,85 +8,80 @@
     <link rel="stylesheet" href="{% static 'css/index.css' %}">
 </head>
 <body>
-    <!-- шапка сайта -->
     <header class="header">
         <div class="logo">
             <p>APTSystem</p>
         </div>
         <nav class="nav">
             <ul>
-                <li><a href="https://aptsystem.ru" class="nav-link">Главная</a></li>
                 <li><a href="/" class="nav-link">Тикеты</a></li>
                 <li><a href="/admin" class="nav-link">Админка</a></li>
             </ul>
         </nav>
     </header>
 
-    <!-- Секция с тикетами -->
     <main class="ticket-section">
-        <h2 class="section-title">Ваши тикеты</h2>
-        <div class="ticket-container">
-            <div class="ticket">
-                <div class="ticket-header">
-                    <h3 class="ticket-title">Тикет #001</h3>
-                    <span class="ticket-status-label status-waiting">Ожидает</span>
-                </div>
-                <p class="ticket-description">Описание проблемы: Не работает авторизация на сайте...</p>
-                <p class="ticket-date">Дата создания: 2024-11-17</p>
-                <p class="ticket-author">Автор: Иван Иванов</p>
-                <p class="ticket-assignee">Исполнитель: Алексей Смирнов</p>
-                <a href="#" class="ticket-link">Подробнее</a>
-            </div>
-
-            <div class="ticket">
-                <div class="ticket-header">
-                    <h3 class="ticket-title">Тикет #002</h3>
-                    <span class="ticket-status-label status-in-progress">В процессе</span>
-                </div>
-                <p class="ticket-description">Описание проблемы: Проблемы с загрузкой изображений...</p>
-                <p class="ticket-date">Дата создания: 2024-11-16</p>
-                <p class="ticket-author">Автор: Мария Петрова</p>
-                <p class="ticket-assignee">Исполнитель: Сергей Кузнецов</p>
-                <a href="#" class="ticket-link">Подробнее</a>
-            </div>
-
-            <div class="ticket">
-                <div class="ticket-header">
-                    <h3 class="ticket-title">Тикет #003</h3>
-                    <span class="ticket-status-label status-closed">Закрыт</span>
-                </div>
-                <p class="ticket-description">Описание проблемы: Ошибка в API вызове...</p>
-                <p class="ticket-date">Дата создания: 2024-11-15</p>
-                <p class="ticket-author">Автор: Алексей Смирнов</p>
-                <p class="ticket-assignee">Исполнитель: Ирина Васильева</p>
-                <a href="#" class="ticket-link">Подробнее</a>
-            </div>
-
-            <div class="ticket">
-                <div class="ticket-header">
-                    <h3 class="ticket-title">Тикет #004</h3>
-                    <span class="ticket-status-label status-waiting">Ожидает</span>
-                </div>
-                <p class="ticket-description">Описание проблемы: Невозможно создать новый пост...</p>
-                <p class="ticket-date">Дата создания: 2024-11-14</p>
-                <p class="ticket-author">Автор: Наталья Чернова</p>
-                <p class="ticket-assignee">Исполнитель: Сергей Кузнецов</p>
-                <a href="#" class="ticket-link">Подробнее</a>
-            </div>
-
-            <div class="ticket">
-                <div class="ticket-header">
-                    <h3 class="ticket-title">Тикет #005</h3>
-                    <span class="ticket-status-label status-in-progress">В процессе</span>
-                </div>
-                <p class="ticket-description">Описание проблемы: Не отображаются комментарии...</p>
-                <p class="ticket-date">Дата создания: 2024-11-13</p>
-                <p class="ticket-author">Автор: Алексей Смирнов</p>
-                <p class="ticket-assignee">Исполнитель: Ирина Васильева</p>
-                <a href="#" class="ticket-link">Подробнее</a>
-            </div>
-
+        <h2 class="section-title">Тикеты</h2>
+        <div class="ticket-container" id="ticket-container">
+            <!-- Здесь будут появляться тикеты -->
         </div>
     </main>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        function loadTickets() {
+    $.ajax({
+        url: '{% url "get_tickets" %}',
+        method: 'GET',
+        success: function(data) {
+            console.log(data);  // Логируем данные для отладки
+            $('#ticket-container').empty();  // Очищаем контейнер
+
+            if (data.tickets.length === 0) {
+                $('#ticket-container').html('<p>Нет доступных тикетов</p>');
+            } else {
+                data.tickets.forEach(function(ticket) {
+                    // Определение класса для статуса тикета
+                    var statusClass = '';
+                    if (ticket.status === 'Ожидает') statusClass = 'status-waiting';
+                    if (ticket.status === 'В процессе') statusClass = 'status-in-progress';
+                    if (ticket.status === 'Закрыт') statusClass = 'status-closed';
+
+                    // Формирование HTML для тикета
+                    var ticketHtml = `
+                        <div class="ticket" id="ticket-${ticket.pk}">
+                            <div class="ticket-header">
+                                <h3 class="ticket-title">Тикет #${ticket.pk}</h3>
+                                <span class="ticket-status-label ${statusClass}">${ticket.status}</span>
+                            </div>
+                            <p class="ticket-description">Описание проблемы: ${ticket.description}</p>
+                            <p class="ticket-date">Дата создания: ${ticket.date_create}</p>
+                            <p class="ticket-author">Автор: <a href="/admin/auth/user/${ticket.author.id}/change">${ticket.author.first_name} ${ticket.author.last_name}</a></p>
+                    `;
+
+                    // Добавляем информацию о исполнителе, если он есть
+                    if (ticket.executor.first_name && ticket.executor.last_name) {
+                        ticketHtml += `<p class="ticket-assignee">Исполнитель: ${ticket.executor.first_name} ${ticket.executor.last_name}</p>`;
+                    }
+
+                    // Закрываем тег див тикета
+                    ticketHtml += `</div>`;
+
+                    // Добавляем HTML в контейнер
+                    $('#ticket-container').append(ticketHtml);
+                });
+            }
+        },
+        error: function(xhr, status, error) {
+            console.error("Ошибка загрузки тикетов:", error);
+        }
+    });
+    }
+
+        $(document).ready(function() {
+            loadTickets();  // Загружаем тикеты при загрузке страницы
+            setInterval(loadTickets, 10000);  // Обновляем каждые 10 секунд
+        });
+    </script>
 </body>
 </html>
