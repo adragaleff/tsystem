@@ -8,8 +8,10 @@ from django.urls import reverse_lazy
 from django.views.generic import CreateView
 from .utils import *
 from .decorators import *
+from django.contrib.auth.decorators import login_required
 
 # Create your views here.
+@login_required(login_url='/login')
 @staff_required
 def home_view(request):
 
@@ -21,6 +23,7 @@ def home_view(request):
 
     return render(request, 'index.html', context)
 
+@login_required(login_url='/login')
 @staff_required
 def get_tickets(request):
     tickets = Ticket.objects.exclude(status='Закрыт').order_by('-date_create')\
