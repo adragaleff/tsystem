@@ -16,12 +16,18 @@
             <ul>
                 <li><a href="/" class="nav-link">Тикеты</a></li>
                 <li><a href="/admin" class="nav-link">Админка</a></li>
+                {% if user.is_authenticated %}
+                <li><a href="/logout" class="nav-link">Выйти</a></li>
+                {% else %}
+                <li><a href="/register" class="nav-link">Регистрация</a></li>
+                <li><a href="/login" class="nav-link">Авторизация</a></li>
+                {% endif %}
             </ul>
         </nav>
     </header>
 
     <main class="ticket-section">
-        <h2 class="section-title">Все Тикеты</h2>
+        <h2 class="section-title">Тикеты</h2>
         <div class="ticket-container" id="ticket-container">
             <!-- Здесь будут появляться тикеты -->
         </div>
