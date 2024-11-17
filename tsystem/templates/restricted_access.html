@@ -1,0 +1,42 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Доступ ограничен | APTSystem</title>
+    <link rel="stylesheet" href="{% static 'css/restricted_access.css' %}">
+</head>
+<body>
+    <!-- Шапка сайта -->
+    <header class="header">
+        <div class="logo">
+            <p>APTSystem</p>
+        </div>
+        <nav class="nav">
+            <ul>
+                <li><a href="/" class="nav-link">Тикеты</a></li>
+                <li><a href="/admin" class="nav-link">Админка</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <!-- Основной контент -->
+    <main>
+        <div class="access-denied">
+            <h1>Доступ ограничен</h1>
+            <p>У вас нет прав для доступа к этой странице.</p>
+            <a href="/" class="nav-link back-home">Вернуться на главную</a>
+            <form action="{% url 'logout' %}" method="post">
+                {% csrf_token %}
+                <button type="submit" class="logout-button">Выйти</button>
+            </form>
+        </div>
+    </main>
+
+    <!-- Подвал сайта -->
+    <footer>
+        <p>&copy; 2024 APTSystem</p>
+    </footer>
+</body>
+</html>
