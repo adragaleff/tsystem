@@ -1,0 +1,92 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TSystem - APTSystem</title>
+    <link rel="stylesheet" href="{% static 'css/index.css' %}">
+</head>
+<body>
+    <!-- шапка сайта -->
+    <header class="header">
+        <div class="logo">
+            <p>APTSystem</p>
+        </div>
+        <nav class="nav">
+            <ul>
+                <li><a href="https://aptsystem.ru" class="nav-link">Главная</a></li>
+                <li><a href="/" class="nav-link">Тикеты</a></li>
+                <li><a href="/admin" class="nav-link">Админка</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <!-- Секция с тикетами -->
+    <main class="ticket-section">
+        <h2 class="section-title">Ваши тикеты</h2>
+        <div class="ticket-container">
+            <div class="ticket">
+                <div class="ticket-header">
+                    <h3 class="ticket-title">Тикет #001</h3>
+                    <span class="ticket-status-label status-waiting">Ожидает</span>
+                </div>
+                <p class="ticket-description">Описание проблемы: Не работает авторизация на сайте...</p>
+                <p class="ticket-date">Дата создания: 2024-11-17</p>
+                <p class="ticket-author">Автор: Иван Иванов</p>
+                <p class="ticket-assignee">Исполнитель: Алексей Смирнов</p>
+                <a href="#" class="ticket-link">Подробнее</a>
+            </div>
+
+            <div class="ticket">
+                <div class="ticket-header">
+                    <h3 class="ticket-title">Тикет #002</h3>
+                    <span class="ticket-status-label status-in-progress">В процессе</span>
+                </div>
+                <p class="ticket-description">Описание проблемы: Проблемы с загрузкой изображений...</p>
+                <p class="ticket-date">Дата создания: 2024-11-16</p>
+                <p class="ticket-author">Автор: Мария Петрова</p>
+                <p class="ticket-assignee">Исполнитель: Сергей Кузнецов</p>
+                <a href="#" class="ticket-link">Подробнее</a>
+            </div>
+
+            <div class="ticket">
+                <div class="ticket-header">
+                    <h3 class="ticket-title">Тикет #003</h3>
+                    <span class="ticket-status-label status-closed">Закрыт</span>
+                </div>
+                <p class="ticket-description">Описание проблемы: Ошибка в API вызове...</p>
+                <p class="ticket-date">Дата создания: 2024-11-15</p>
+                <p class="ticket-author">Автор: Алексей Смирнов</p>
+                <p class="ticket-assignee">Исполнитель: Ирина Васильева</p>
+                <a href="#" class="ticket-link">Подробнее</a>
+            </div>
+
+            <div class="ticket">
+                <div class="ticket-header">
+                    <h3 class="ticket-title">Тикет #004</h3>
+                    <span class="ticket-status-label status-waiting">Ожидает</span>
+                </div>
+                <p class="ticket-description">Описание проблемы: Невозможно создать новый пост...</p>
+                <p class="ticket-date">Дата создания: 2024-11-14</p>
+                <p class="ticket-author">Автор: Наталья Чернова</p>
+                <p class="ticket-assignee">Исполнитель: Сергей Кузнецов</p>
+                <a href="#" class="ticket-link">Подробнее</a>
+            </div>
+
+            <div class="ticket">
+                <div class="ticket-header">
+                    <h3 class="ticket-title">Тикет #005</h3>
+                    <span class="ticket-status-label status-in-progress">В процессе</span>
+                </div>
+                <p class="ticket-description">Описание проблемы: Не отображаются комментарии...</p>
+                <p class="ticket-date">Дата создания: 2024-11-13</p>
+                <p class="ticket-author">Автор: Алексей Смирнов</p>
+                <p class="ticket-assignee">Исполнитель: Ирина Васильева</p>
+                <a href="#" class="ticket-link">Подробнее</a>
+            </div>
+
+        </div>
+    </main>
+</body>
+</html>
