@@ -23,6 +23,7 @@ jobs:
         script: |
           cd /home/tsystem/
           git clone https://github.com/adragaleff/tsystem.git
+          cd tsystem
           docker-compose down  
           docker-compose up --build -d  
 
