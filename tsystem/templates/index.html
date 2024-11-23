@@ -7,7 +7,6 @@
     <title>TSystem - APTSystem</title>
     <link rel="stylesheet" href="{% static 'css/index.css' %}">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
 </head>
 <body>
     <header class="header">
@@ -39,18 +38,6 @@
             <button id="next-page" class="pagination-button" disabled>Следующая</button>
         </div>
     </main>
-
-    <!-- Поп-ап окно для отображения тикета -->
-    <div id="ticket-modal" class="ticket-modal">
-        <div class="ticket-modal-content">
-            <span id="close-modal" class="close-btn">&times;</span>
-            <h2>Подробности тикета</h2>
-            <div id="ticket-detail">
-                <!-- Здесь будут отображаться подробности тикета -->
-            </div>
-        </div>
-    </div>
-
     <script>
         var currentPage = 1;  // Стартовая страница
 
@@ -83,8 +70,13 @@
                                     <p class="ticket-description">Описание проблемы: ${ticket.description}</p>
                                     <p class="ticket-date">Дата создания: ${ticket.date_create}</p>
                                     <p class="ticket-author">Автор: <a href="/admin/auth/user/${ticket.author.id}/change">${ticket.author.first_name} ${ticket.author.last_name}</a></p>
-                                    <button class="open-ticket-btn" data-ticket-id="${ticket.pk}">Открыть тикет</button>
-                                </div>`;  // Закрываем div тикета
+                            `;
+                            
+                            if (ticket.executor.first_name && ticket.executor.last_name) {
+                                ticketHtml += `<p class="ticket-assignee">Исполнитель: ${ticket.executor.first_name} ${ticket.executor.last_name}</p>`;
+                            }
+
+                            ticketHtml += `</div>`;  // Закрываем div тикета
 
                             $('#ticket-container').append(ticketHtml);  // Добавляем тикет в контейнер
                         });
@@ -109,57 +101,6 @@
             });
         }
 
-        // Функция для загрузки подробностей тикета
-        function loadTicketDetails(ticketId) {
-            $.ajax({
-                url: '{% url "get_ticket_detail" %}?ticket_id=' + ticketId,  // Параметр тикета в URL
-                method: 'GET',
-                success: function(data) {
-                    console.log(data);  // Логируем данные для отладки
-
-                    var priorityIconClass = '';
-                    var priorityIcon = '';
-                    if (data.priority === 'Приоритет 1') {
-                        priorityIconClass = 'priority-1';
-                        priorityIcon = '<i class="fas fa-arrow-down priority-icon"></i>'; 
-                        priority_data = `<p><strong>Приоритет:</strong> ${priorityIcon} <span class="priority-1">Приоритет 1</span></p>`; // Зеленый значок для приоритета 1
-                    } else if (data.priority === 'Приоритет 2') {
-                        priorityIconClass = 'priority-2';
-                        priorityIcon = '<i class="fas fa-arrow-right priority-icon"></i>';
-                        priority_data = `<p><strong>Приоритет:</strong> ${priorityIcon} <span class="priority-2">Приоритет 2</span></p>`;  // Оранжевый значок для приоритета 2
-                    } else if (data.priority === 'Приоритет 3') {
-                        priorityIconClass = 'priority-3';
-                        priorityIcon = '<i class="fas fa-arrow-up priority-icon"></i>';
-                        priority_data = `<p><strong>Приоритет:</strong> ${priorityIcon}<span class="priority-3">Приоритет 3</span></p>`;  // Красный значок для приоритета 3
-                    }
-
-                    if (data.status === 'Ожидает') statusClass = 'status-waiting';
-                    if (data.status === 'В процессе') statusClass = 'status-in-progress';
-                    if (data.status === 'Закрыт') statusClass = 'status-closed';
-
-                    var ticketDetailHtml = `
-                        <p><strong>Тикет #${data.pk}</strong></p>
-                        <p><strong>Название:</strong> ${data.title}</p>
-                        <p><strong>Статус:</strong> <span class="ticket-status-label ${statusClass}">${data.status}</span></p>
-                        ${priority_data}
-                        <p><strong>Описание:</strong> ${data.description}</p>
-                        <p><strong>Дата создания:</strong> ${data.date_create}</p>
-                        <p><strong>Автор:</strong> ${data.author.first_name} ${data.author.last_name}</p>
-                    `;
-
-                    if (data.executor.first_name && data.executor.last_name) {
-                        ticketDetailHtml += `<p><strong>Исполнитель:</strong> ${data.executor.first_name} ${data.executor.last_name}</p>`;
-                    }
-
-                    $('#ticket-detail').html(ticketDetailHtml);
-                    $('#ticket-modal').show();  // Показываем поп-ап окно
-                },
-                error: function(xhr, status, error) {
-                    console.error("Ошибка загрузки данных тикета:", error);
-                }
-            });
-        }
-
         // Обработчик для кнопки "Следующая"
         $('#next-page').click(function() {
             currentPage++;
@@ -172,20 +113,12 @@
             loadTickets(currentPage);
         });
 
-        // Закрытие поп-ап окна
-        $('#close-modal').click(function() {
-            $('#ticket-modal').hide();  // Скрываем поп-ап
-        });
-
-        // Обработчик для кнопки "Открыть тикет"
-        $(document).on('click', '.open-ticket-btn', function() {
-            var ticketId = $(this).data('ticket-id');
-            loadTicketDetails(ticketId);
-        });
-
         // Загружаем тикеты при загрузке страницы
         $(document).ready(function() {
             loadTickets(currentPage);
+            setInterval(function() {
+                loadTickets(currentPage);  // Загружаем тикеты на текущей странице каждую секунду
+            }, 10000);
         });
     </script>
 </body>

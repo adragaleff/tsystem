@@ -1,4 +1,4 @@
-from django.shortcuts import render, redirect, get_object_or_404
+from django.shortcuts import render, redirect
 from django.http import JsonResponse
 from .models import *
 from django.contrib.auth.views import LoginView
@@ -55,34 +55,6 @@ def get_tickets(request):
         ticket_list.append(ticket_data)
 
     return JsonResponse({'tickets': ticket_list, 'has_next': page_obj.has_next(), 'has_previous': page_obj.has_previous()})
-
-@login_required(login_url='/login')
-@staff_required
-def get_ticket_detail(request):
-    ticket_id = request.GET.get('ticket_id')
-    ticket = get_object_or_404(Ticket, pk=ticket_id)
-
-    # Структура данных, которые будут возвращены в JSON
-    ticket_data = {
-        'pk': ticket.pk,
-        'title': ticket.title,
-        'description': ticket.description,
-        'status': ticket.status,
-        'priority': ticket.priority,
-        'date_create': ticket.date_create.strftime('%d-%m-%Y %H:%M'),
-        'author': {
-            'id': ticket.author.id,
-            'first_name': ticket.author.first_name,
-            'last_name': ticket.author.last_name
-        },
-        'executor': {
-            'id': ticket.executor.id if ticket.executor else None,
-            'first_name': ticket.executor.first_name if ticket.executor else None,
-            'last_name': ticket.executor.last_name if ticket.executor else None
-        }
-    }
-
-    return JsonResponse(ticket_data)
 
 
 class LoginUser(DataMixin, LoginView):
